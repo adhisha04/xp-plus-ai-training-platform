@@ -44,24 +44,33 @@ It combines **behavioral training + AI evaluation + gamification + admin analyti
 
 ## 📸 Screenshots
 
-### 🏠 Home / Dashboard
+### 🏠 Home / Dashboard  
 Path: `/home`
 
 ![Home](./screenshots/home.png)
+![Home 2](./screenshots/home2.png)
 
 ---
 
-### 📚 Scenario Library
+### 📊 Dashboard  
+Path: `/dashboard`
+
+![Dashboard](./screenshots/dashboard.png)
+
+---
+
+### 📚 Scenario Library  
 Path: `/scenarios`
 
 ![Scenario Library](./screenshots/scenarios.png)
 
 ---
 
-### 🧠 AI Feedback
+### 🧠 AI Feedback  
 Path: `/scenario/:id`
 
-![AI Feedback](./screenshots/feedback.png)
+![Feedback](./screenshots/feedback.png)
+![Feedback 2](./screenshots/feedback2.png)
 
 ---
 
