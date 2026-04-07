@@ -6,6 +6,16 @@ It combines **behavioral training + AI evaluation + gamification + admin analyti
 
 ---
 
+## ⚡ Key Features
+
+- AI-powered feedback engine
+- Gamified XP scoring system
+- Role-based access (Admin/User)
+- Scenario creation & sharing
+- Real-time database (Firestore)
+
+---
+
 ## 🌟 Features
 
 ### 👤 User Features
