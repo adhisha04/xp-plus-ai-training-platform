@@ -84,6 +84,17 @@ Path: `/scenario/:id`
 
 ---
 
+## 🧠 System Architecture
+
+Frontend (React) → Firebase (Auth + Firestore) → Node.js API → AI Evaluation → Response Scoring
+
+- React handles UI & state
+- Firebase manages authentication & database
+- Node.js processes AI evaluation
+- XP system gamifies learning
+
+---
+
 ## 📁 Project Structure
 
 ```
@@ -339,6 +350,16 @@ After signup:
 * Leaderboard system
 * AI model fine-tuning
 * Deployment (Vercel + Firebase Hosting)
+
+---
+
+## 💼 Why This Project Matters
+
+- Simulates real-world decision making scenarios
+- Applies AI for behavioral evaluation
+- Implements role-based access control
+- Demonstrates full-stack system design
+- Combines product thinking + engineering
 
 ---
 
