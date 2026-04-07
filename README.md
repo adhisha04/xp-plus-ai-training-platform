@@ -42,6 +42,29 @@ It combines **behavioral training + AI evaluation + gamification + admin analyti
 
 ---
 
+## 📸 Screenshots
+
+### 🏠 Home / Dashboard
+Path: `/home`
+
+![Home](./screenshots/home.png)
+
+---
+
+### 📚 Scenario Library
+Path: `/scenarios`
+
+![Scenario Library](./screenshots/scenarios.png)
+
+---
+
+### 🧠 AI Feedback
+Path: `/scenario/:id`
+
+![AI Feedback](./screenshots/feedback.png)
+
+---
+
 ## 🛠️ Tech Stack
 
 **Frontend**
