@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   Zap,
   CheckCircle2,
@@ -14,20 +14,17 @@ const scoreLabels = {
   empathy: { label: "Empathy", icon: "❤️" },
   clarity: { label: "Clarity", icon: "💎" },
   logic: { label: "Logic", icon: "🧠" },
-  emotional_intelligence: { label: "EQ", icon: "🎯" },
+  emotional_intelligence: { label: "EQ", icon: "🎯" }, // ✅ matches backend
   creativity: { label: "Creativity", icon: "✨" },
 };
 
 export default function Feedback() {
+  const { state } = useLocation(); // ✅ get fresh data from Scenario.jsx
   const [animatedXP, setAnimatedXP] = useState(0);
 
-  // ✅ safer parsing
-  let feedback = null;
-  try {
-    feedback = JSON.parse(localStorage.getItem("aiFeedback"));
-  } catch {
-    feedback = null;
-  }
+  const feedback = state;
+
+  // ❌ No localStorage anymore
 
   if (!feedback) {
     return (
@@ -38,16 +35,18 @@ export default function Feedback() {
   }
 
   const scores = feedback.scores || {};
-  const totalXP = feedback.xp || 30;
+
+  // ✅ IMPORTANT FIX: don't override 0 XP
+  const totalXP = feedback.xp ?? 0;
 
   // ✅ XP animation
   useEffect(() => {
     let current = 0;
     const steps = 20;
-    const inc = totalXP / steps;
+    const increment = totalXP / steps;
 
     const timer = setInterval(() => {
-      current += inc;
+      current += increment;
       if (current >= totalXP) {
         setAnimatedXP(totalXP);
         clearInterval(timer);
@@ -66,7 +65,7 @@ export default function Feedback() {
         <Trophy className="w-10 h-10 text-white mx-auto mb-4" />
 
         <h1 className="text-3xl font-bold text-white mb-4">
-          Great Job! 🎉
+          Feedback Ready 🎯
         </h1>
 
         <div className="inline-flex items-center gap-3 bg-white/20 px-8 py-4 rounded-2xl">
@@ -89,7 +88,7 @@ export default function Feedback() {
 
           <div className="space-y-4">
             {Object.entries(scoreLabels).map(([key, val]) => {
-              const score = scores[key] || 0;
+              const score = scores[key] ?? 0;
 
               return (
                 <div key={key}>
@@ -100,7 +99,6 @@ export default function Feedback() {
                     <span>{score}/5</span>
                   </div>
 
-                  {/* 🔥 Progress bar */}
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
                       className="bg-[#3A7BFF] h-2 rounded-full"

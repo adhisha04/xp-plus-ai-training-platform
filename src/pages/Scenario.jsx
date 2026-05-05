@@ -79,79 +79,106 @@ export default function Scenario() {
   }
 
   // 🚀 SUBMIT HANDLER
-  const handleSubmit = async () => {
-    if (userAnswer.length < 50) {
-      alert("Please write at least 50 characters.");
+const handleSubmit = async () => {
+  if (userAnswer.length < 50) {
+    alert("Please write at least 50 characters.");
+    return;
+  }
+
+  setIsSubmitting(true);
+
+  try {
+    const res = await fetch("http://localhost:3001/api/evaluate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        scenario: `${scenario.title} - ${scenario.description}`,
+        answer: userAnswer,
+      }),
+    });
+
+    const raw = await res.json();
+
+    console.log("🧠 RAW AI:", raw);
+
+    // 🔥 HANDLE REFUSAL CASE (CRITICAL FIX)
+    let data;
+
+    if (typeof raw === "string") {
+      console.warn("⚠️ AI refused response");
+
+      data = {
+        summary:
+          "This response contains harmful or inappropriate content and cannot be evaluated.",
+        scores: {
+          empathy: 0,
+          clarity: 0,
+          logic: 0,
+          emotional_intelligence: 0,
+          creativity: 0,
+        },
+        strengths: [],
+        improvements: [
+          "Avoid harmful or aggressive language",
+          "Focus on respectful communication",
+          "Provide constructive solutions",
+        ],
+        xp: 0,
+        flagged: true,
+      };
+    } else {
+      data = raw;
+    }
+
+    // ✅ XP fallback logic
+    const earnedXP = data.xp ?? scenario.base_xp ?? 30;
+
+    const user = auth.currentUser;
+    if (!user) {
+      alert("User not logged in");
       return;
     }
 
-    setIsSubmitting(true);
+    await createOrGetUser(user);
 
-    try {
-      // 🔥 AI CALL
-      const res = await fetch("http://localhost:3001/api/evaluate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          scenario: `${scenario.title} - ${scenario.description}`,
-          answer: userAnswer,
-        }),
-      });
+    const userRef = doc(db, "users", user.uid);
 
-      const data = await res.json();
-      const earnedXP = data.xp || scenario.base_xp || 30;
+    // ✅ SAVE RESPONSE
+    await saveResponseToFirestore({
+      user_id: user.uid,
+      user_email: user.email,
+      scenario_id: scenario.id,
+      scenario_title: scenario.title,
+      user_answer: userAnswer,
+      ai_feedback: data,
+      total_xp_earned: earnedXP,
+      createdAt: new Date(),
+    });
 
-      console.log("AI RESPONSE:", data);
+    // ✅ UPDATE XP
+    await setDoc(
+      userRef,
+      {
+        xp: increment(earnedXP),
+        email: user.email,
+      },
+      { merge: true }
+    );
 
-      // 👤 USER
-      const user = auth.currentUser;
-      if (!user) {
-        alert("User not logged in");
-        setIsSubmitting(false);
-        return;
-      }
+    console.log("🔥 XP UPDATED:", earnedXP);
 
-      // ✅ ensure user exists
-      await createOrGetUser(user);
+    // ✅ PASS CLEAN DATA
+    navigate("/feedback", { state: data });
 
-      const userRef = doc(db, "users", user.uid);
-
-      // ✅ SAVE RESPONSE (ADMIN READY)
-      await saveResponseToFirestore({
-        user_id: user.uid,
-        user_email: user.email,
-        scenario_id: scenario.id,
-        scenario_title: scenario.title,
-        user_answer: userAnswer,
-        ai_feedback: data,
-        total_xp_earned: earnedXP,
-        createdAt: new Date(),
-      });
-
-      // ✅ UPDATE XP
-      await setDoc(
-        userRef,
-        {
-          xp: increment(earnedXP),
-          email: user.email,
-        },
-        { merge: true }
-      );
-
-      console.log("🔥 XP UPDATED:", earnedXP);
-
-      // 🚀 NAVIGATE
-      navigate("/feedback");
-
-    } catch (error) {
-      console.error("❌ Error:", error);
-      alert("Something went wrong. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  } catch (error) {
+    console.error("❌ Error:", error);
+    alert("Something went wrong. Please try again.");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-[#F5F7FA]">
